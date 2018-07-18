@@ -1,0 +1,24 @@
+{
+   "skills" : "java",
+    "questionType" : "Options",
+    "level" : "medium",
+    "question" : "Which is true about an anonymous inner class?",
+    "options" : [
+        {
+            "A" : "It can extend exactly one class and implement exactly one interface"
+        },
+        {
+            "B" : "It can extend exactly one class and can implement multiple interfaces."
+        },
+        {
+            "C" : "It can extend exactly one class and can implement multiple interfaces."
+        },
+        {
+            "D" : "It can implement multiple interfaces regardless of whether it also extends a class."
+        }
+    ],
+    "answer" : "C",
+    "role" : "developer",
+    "industry" : "all"
+ }
+ 
