@@ -33,35 +33,34 @@ app.get('/find-next', function (req, res) {
 app.post('/users', function (req, res) {
     console.log(req.body);
     n= req.body;
-    var rest = insertion(n);
+    //var rest = insertion(n);
     console.log("inside add method--->>:", req.body);
     console.log(req.body);
    // res.send(rest);
+   MongoClient.connect(url, function (err, client) {  
+    assert.equal(null, err);
+    console.log("Connected correctly to server");
+
+    const db = client.db(dbName);
+    var v = db.collection('test123').insert(n, function (err, r) {
+           
+         if (err)
+            {
+                res.send(err);
+                throw err;
+            }
+            else
+            {
+            res.send("You are succesfull inserted  :"+ r.insertedCount+"record(s).");
+        }
+});
+});
 });
 
-function insertion(n) {
-    MongoClient.connect(url, function (err, client) {  
-        assert.equal(null, err);
-        console.log("Connected correctly to server");
+ 
+    
+    
 
-        const db = client.db(dbName);
-        db.collection('daffb').insert(n
-            , function (err, r) {
-               // assert.equal(null, err);
-                //assert.equal(1, r.insertedCount);
-                
-                if (err)
-                {
-                    console.log("error:"+err);
-                }
-                else
-                {
-                console.log("succesfull inserted row :"+ r.insertedCount);
-            }
-            });
-    });
-    return n;
-}
+  
 
-
-
+  
