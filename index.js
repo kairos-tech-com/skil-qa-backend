@@ -6,9 +6,20 @@ var bodyParser = require('body-Parser');
 
 app.use(bodyParser.json());
 
-const url = "mongodb://localhost:27017/skilapp";
-const dbName = 'skilapp1';
-var n;
+const url = "mongodb://localhost:27017/";
+var dbName = 'skilapp1';
+var db = null;
+
+// Connection with MongoDb
+MongoClient.connect(url, function(err, client) {
+  if (err) {
+    console.log(err);
+    //throw err;
+  } else {
+    console.log("connected");
+    db = client.db(dbName);
+  }
+});
 
 app.listen(9090, function () {
     console.log('server running at http://localhost:9090');
@@ -19,49 +30,64 @@ app.get('/', function (request, response) {
     response.send({ "status": "welcome, i'm running" });
 });
 
+app.get('/questions/:questionId', function(req, res) {
 
-app.get('/find-next', function (req, res) {
-    n.collection("test11")
-        .find()
-        .toArray(function (err, docs) {
-            assert.equal(err, null);
-            console.log("Found the following records");
-            console.log(docs)
-            res.send(docs);
-        });
+    var questionId = req.params.questionId;
+    if(db != null) {
+
+    } else {
+      res.send("We have a problem connecting to our database");
+    }
+  });
+
+app.get('/score/:userId', function(req, res) {
+
+    var userId = req.params.questionId;
+    res.send("Question id: " + questionId);
+  });
+
+app.get('/questions', function(req, res) {
+    var tarun = [];
+    //console.log(db);
+    if (db != null) {
+      var cursor = db.collection('questions').find();
+      cursor.each(function(err, data) {
+        if (err) {
+          console.log(err);
+          throw err;
+        } else {
+          console.log("Data from questions collections: " + data);
+          tarun.push(data);
+        }
+      });
+    }
+    console.log("Tarun: " + tarun);
+    res.send(tarun);
+  });
+
+
+app.post('/questions', function (req, res) {
+    console.log("inside post method--->>:", req.body);
+    insertion(req.body, res);
+    console.log("Complete post method");
 });
-app.post('/users', function (req, res) {
-    console.log(req.body);
-    n= req.body;
-    var rest = insertion(n);
-    console.log("inside add method--->>:", req.body);
-    console.log(req.body);
-   // res.send(rest);
-});
 
-function insertion(n) {
-    MongoClient.connect(url, function (err, client) {  
-        assert.equal(null, err);
-        console.log("Connected correctly to server");
-
-        const db = client.db(dbName);
-        db.collection('daffb').insert(n
+function insertion(body, res) {
+    if(db != null) {
+        db.collection('questions').insert(body
             , function (err, r) {
-               // assert.equal(null, err);
-                //assert.equal(1, r.insertedCount);
-                
+
                 if (err)
                 {
                     console.log("error:"+err);
+                    res.send("An error occured while inserting data in the database. Here are the details: " + err);
                 }
                 else
                 {
-                console.log("succesfull inserted row :"+ r);
+                res.send("succesfull inserted row : "+ r.insertedCount + " row in the database");
             }
             });
-    });
-    return n;
+    } else {
+        res.send("Was unable to make a database connection");
+    }
 }
-
-
-
