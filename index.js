@@ -9,7 +9,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.json());
 
 const url = "mongodb://localhost:27017/";
-var dbName = 'skilapp1';
+var dbName = 'kairos';
 var db = null;
 
 // Connection with MongoDb
@@ -66,9 +66,40 @@ app.get('/questions/:questionId', function (req, res) {
 
 
 app.get('/score/:userId', function (req, res) {
-
-        var userId = req.params.questionId;
-        res.send("Question id: " + questionId);
+    
+    var userId = req.params.userId;
+    console.log("UserId: " + userId);
+    if (db != null) {
+      db.collection('score').find({
+        "userId": userId
+      }).count(function(err, totalNumberOfQuestions) {
+        console.log("Total number of questions  " + totalNumberOfQuestions);
+  
+        db.collection('score').find({
+          "Status": "PASS"
+        }).count(function(err, noOfPassedQuestions) {
+          console.log("Number of passed questions  " + noOfPassedQuestions);
+  
+          console.log("Percentage is: " + (noOfPassedQuestions / totalNumberOfQuestions) * 100);
+          var scoreResult = {}
+  
+          stat = (noOfPassedQuestions / totalNumberOfQuestions) * 100;
+          scoreResult.stat = stat;
+  
+          if (stat > 70) {
+            console.log("PASS");
+            scoreResult.result = "PASS";
+          } else {
+            scoreResult.result = "FAIL";
+  
+          }
+  
+          res.send(scoreResult);
+        });
+      });
+    } else {
+      res.send("There was an error connecting to the database");
+    }   
 });
 
 
