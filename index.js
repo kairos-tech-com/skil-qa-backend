@@ -34,7 +34,7 @@ app.get('/questions/:questionId', function (req, res) {
     console.log("Query database with quesion id: " + questionId);
 
     var query = {
-      questionId: questionId
+      "questionId": parseInt(questionId)
     };
 
     db.collection("questions").find(query).toArray(function (err, result) {
