@@ -3,7 +3,9 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var async = require('async');
+var cors = require('cors');
 
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -90,6 +92,7 @@ function getQuestionById(questionId, res) {
 function saveToResultsCollection(questionResponse, res) {
   console.log("Inside saveToResultsCollection method");
   if (db != null) {
+    console.log("Question Response object received from caller: " + JSON.stringify(questionResponse));
     var query = { "questionId": parseInt(questionResponse.questionId) };
     db.collection('questions').findOne(query, function (err, result) {
       if (err) {
@@ -97,7 +100,7 @@ function saveToResultsCollection(questionResponse, res) {
         res.send("An error occured while querying question against the database. Here are the details: " + err);
       }
 
-      console.log("Question object from mongodb after querying: " + result);
+      console.log("Question object from mongodb after querying: " + JSON.stringify(result));
 
       var resultDb = {};
       var correctAnswer = result.answer;
@@ -121,7 +124,9 @@ function saveToResultsCollection(questionResponse, res) {
           res.send("An error occured while inserting results in the database. Here are the details: " + err);
         }
         else {
-          res.send("Succesfully saved " + JSON.stringify(resultDb) + " to the database");
+          var resObj = {};
+          resObj.statusText = "Succesfully saved " + JSON.stringify(resultDb) + " to the database";
+          res.send(resObj);
         }
       });
     });
