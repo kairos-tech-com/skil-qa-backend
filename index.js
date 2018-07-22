@@ -29,21 +29,25 @@ app.get('/', function (request, response) {
 });
 
 app.get('/questions/:questionId', function (req, res) {
+  console.log("Inside GET /questions/:questionId ");
   var questionId = req.params.questionId;
   getQuestionById(questionId, res);
 });
 
 app.post('/user/responses', function(req, res) {
+  console.log("Inside POST user/responses ");
   saveToResultsCollection(req.body, res);
 });
 
 app.get('/results/:userId', function (req, res) {
+  console.log("Inside GET /results/:userId ");
   var userId = req.params.userId;
   console.log("UserId: " + userId);
   getResultsForUser(userId, res);
 });
 
 function getQuestionById(questionId, res) {
+  console.log("Inside getQuestionById method");
   if (db != null) {
     console.log("Query database with quesion id: " + questionId);
 
@@ -76,13 +80,17 @@ function getQuestionById(questionId, res) {
 }
 
 function saveToResultsCollection(questionResponse, res) {
+  console.log("Inside saveToResultsCollection method");
   if(db != null) {
-    var query = { "questionId": questionResponse.questionId};
+    var query = { "questionId": parseInt(questionResponse.questionId)};
     db.collection('questions').findOne(query, function(err, result) {
       if (err) {
         console.log("error:" + err);
         res.send("An error occured while querying question against the database. Here are the details: " + err);
       }
+
+      console.log("Question object from mongodb after querying: " + result);
+
       var resultDb = {};
       var correctAnswer = result.answer;
       
@@ -113,7 +121,8 @@ function saveToResultsCollection(questionResponse, res) {
   }
 }
 
-function getResultsForUser(userId, res){
+function getResultsForUser(userId, res) {
+  console.log("Inside getResultsForUser method");
   if (db != null) {
     var query1 = {
       "userId": parseInt(userId)
@@ -151,6 +160,7 @@ function getResultsForUser(userId, res){
 }
 
 app.post('/questions', function (req, res) {
+  
   console.log("inside post method--->>:", req.body);
   insertion(req.body, res);
   console.log("Complete post method");
