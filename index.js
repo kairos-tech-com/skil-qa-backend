@@ -62,8 +62,6 @@ app.get('/questions/:questionId', function (req, res) {
 });
 
 app.post('/user/responses', function(req, res) {
-  // Called when we save users 
-  console.log("Need to implement this");
 
   saveToResultsCollection(req.body, res);
 
