@@ -30,6 +30,20 @@ app.get('/', function (request, response) {
 
 app.get('/questions/:questionId', function (req, res) {
   var questionId = req.params.questionId;
+  getQuestionById(questionId, res);
+});
+
+app.post('/user/responses', function(req, res) {
+  saveToResultsCollection(req.body, res);
+});
+
+app.get('/results/:userId', function (req, res) {
+  var userId = req.params.userId;
+  console.log("UserId: " + userId);
+  getResultsForUser(userId, res);
+});
+
+function getQuestionById(questionId, res) {
   if (db != null) {
     console.log("Query database with quesion id: " + questionId);
 
@@ -58,75 +72,6 @@ app.get('/questions/:questionId', function (req, res) {
   }
   else {
     res.send("We have a problem connecting to our database");
-  }
-});
-
-app.post('/user/responses', function(req, res) {
-
-  saveToResultsCollection(req.body, res);
-
-});
-
-app.get('/results/:userId', function (req, res) {
-  var userId = req.params.userId;
-  console.log("UserId: " + userId);
-  if (db != null) {
-    var query1 = {
-      "userId": 12
-    };
-
-    var query2 = {
-      "userId": 12,
-      "status": "PASS"
-    };
-
-    var totalNumberOfQuestions = 0;
-    var noOfPassedQuestions = 0;
-
-    db.collection('results').find(query1).count(function(err, result) {
-      totalNumberOfQuestions = result;
-      console.log("Total number of questions  " + totalNumberOfQuestions);
-
-      db.collection('results').find(query2).count(function(err, result1) {
-         
-         noOfPassedQuestions = result1;
-         console.log("Number of passed questions  " + noOfPassedQuestions);
-         console.log("Percentage is: " + (noOfPassedQuestions / totalNumberOfQuestions) * 100);
-        var scoreResult = {}
-
-        var overallResult = (noOfPassedQuestions / totalNumberOfQuestions) * 100;
-        scoreResult.overallResult = overallResult;
-        res.send(scoreResult);
-  
-      });
-
-    });
-  } else {
-    res.send("There was an error connecting to the database");
-  }
-});
-
-app.post('/questions', function (req, res) {
-  console.log("inside post method--->>:", req.body);
-  insertion(req.body, res);
-  console.log("Complete post method");
-});
-
-function insertion(body, res) {
-  if (db != null) {
-    db.collection('questions').insert(body
-      , function (err, r) {
-
-        if (err) {
-          console.log("error:" + err);
-          res.send("An error occured while inserting data in the database. Here are the details: " + err);
-        }
-        else {
-          res.send("Succesfully inserted (" + r.insertedCount + ") row in the database");
-        }
-      });
-  } else {
-    res.send("There was an error connecting to the database");
   }
 }
 
@@ -165,5 +110,66 @@ function saveToResultsCollection(questionResponse, res) {
           }
         });
     });
+  }
+}
+
+function getResultsForUser(userId, res){
+  if (db != null) {
+    var query1 = {
+      "userId": parseInt(userId)
+    };
+
+    var query2 = {
+      "userId": parseInt(userId),
+      "status": "PASS"
+    };
+
+    var totalNumberOfQuestions = 0;
+    var noOfPassedQuestions = 0;
+
+    db.collection('results').find(query1).count(function(err, result) {
+      totalNumberOfQuestions = result;
+      console.log("Total number of questions  " + totalNumberOfQuestions);
+
+      db.collection('results').find(query2).count(function(err, result1) {
+         
+         noOfPassedQuestions = result1;
+         console.log("Number of passed questions  " + noOfPassedQuestions);
+         console.log("Percentage is: " + (noOfPassedQuestions / totalNumberOfQuestions) * 100);
+        var scoreResult = {}
+
+        var overallResult = (noOfPassedQuestions / totalNumberOfQuestions) * 100;
+        scoreResult.overallResult = overallResult;
+        res.send(scoreResult);
+  
+      });
+
+    });
+  } else {
+    res.send("There was an error connecting to the database");
+  }
+}
+
+app.post('/questions', function (req, res) {
+  console.log("inside post method--->>:", req.body);
+  insertion(req.body, res);
+  console.log("Complete post method");
+});
+
+function insertion(body, res) {
+  if (db != null) {
+    db.collection('questions').insert(body
+      , function (err, r) {
+
+        if (err) {
+          console.log("error:" + err);
+          res.send("An error occured while inserting data in the database. Here are the details: " + err);
+        }
+        else {
+          res.send("Succesfully inserted (" + r.insertedCount + ") row in the database");
+        }
+      });
+  } else {
+    res.send("There was an error connecting to the database");
   }
 }
